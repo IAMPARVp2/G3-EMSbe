@@ -1,0 +1,6 @@
+2025-10-10 11:06:43 INFO  [restartedMain] c.c.EventorganizerAppApplication:53 - Starting EventorganizerAppApplication using Java 21.0.8 with PID 15872 (C:\G3-Project-be\EMS-be\eventorganizer-app\target\classes started by 2440681 in C:\G3-Project-be\EMS-be\eventorganizer-app)
+2025-10-10 11:06:43 INFO  [restartedMain] c.c.EventorganizerAppApplication:652 - No active profile set, falling back to 1 default profile: "default"
+2025-10-10 11:08:20 INFO  [restartedMain] c.c.EventorganizerAppApplication:53 - Starting EventorganizerAppApplication using Java 21.0.8 with PID 17544 (C:\G3-Project-be\EMS-be\eventorganizer-app\target\classes started by 2440681 in C:\G3-Project-be\EMS-be\eventorganizer-app)
+2025-10-10 11:08:20 INFO  [restartedMain] c.c.EventorganizerAppApplication:652 - No active profile set, falling back to 1 default profile: "default"
+2025-10-10 11:08:30 INFO  [restartedMain] c.c.EventorganizerAppApplication:59 - Started EventorganizerAppApplication in 10.865 seconds (process running for 13.704)
+2025-10-10 11:09:19 INFO  [http-nio-8080-exec-1] c.c.c.OrganizerController:37 - Received request to sign up a new organizer with email: pjain@gmail.com
