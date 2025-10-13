@@ -3,20 +3,15 @@ package com.cts.service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.cts.dto.request.OrganizerRequestDTO;
+import com.cts.dto.request.UserRequestDTO;
+import com.cts.dto.response.OrganizerResponseDTO;
+import com.cts.dto.response.UserResponseDTO;
 
-import com.cts.entity.Organizer;
-import com.cts.entity.User;
-import com.cts.exceptions.OrganizerException;
-import com.cts.repository.UserRepository;
-import com.cts.repository.OrganizerRepository;
-@Service
 public interface OrganizerService {
 
-	@Autowired
-	public User addOrganizer(User user) ;
-	public List<User> getAll() ;
-	public Organizer addOrganizerProfile(Organizer organizer,String email) ;
-	public User patchUser(int id, Map<String, String> updates);
+	public UserResponseDTO addOrganizer(UserRequestDTO userRequestDTO);
+	public List<UserResponseDTO> getAll();
+	public OrganizerResponseDTO addOrganizerProfile(OrganizerRequestDTO organizerRequestDTO, String email);
+	public UserResponseDTO patchUser(int id, Map<String, String> updates);
 }

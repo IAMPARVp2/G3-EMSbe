@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cts.entity.Event;
+import com.cts.dto.request.EventRequestDTO;
+import com.cts.dto.response.EventResponseDTO;
 import com.cts.exceptions.EventNotFoundException;
 import com.cts.exceptions.EventValidationException;
 import com.cts.service.EventService;
@@ -33,11 +34,11 @@ public class EventController {
 
 	// Create event
 	@PostMapping
-	public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-		logger.info("POST /api/events - Creating new event: {}", event.getEventName());
+	public ResponseEntity<EventResponseDTO> createEvent(@RequestBody EventRequestDTO eventRequestDTO) {
+		logger.info("POST /api/events - Creating new event: {}", eventRequestDTO.getEventName());
 		
 		try {
-			Event createdEvent = eventService.createEvent(event);
+			EventResponseDTO createdEvent = eventService.createEvent(eventRequestDTO);
 			logger.info("Event created successfully with ID: {}", createdEvent.getEventId());
 			return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
 		} catch (EventValidationException e) {
@@ -51,11 +52,11 @@ public class EventController {
 
 	// Get all events
 	@GetMapping
-	public ResponseEntity<List<Event>> getAllEvents() {
+	public ResponseEntity<List<EventResponseDTO>> getAllEvents() {
 		logger.info("GET /api/events - Fetching all events");
 		
 		try {
-			List<Event> events = eventService.getAllEvents();
+			List<EventResponseDTO> events = eventService.getAllEvents();
 			logger.info("Successfully retrieved {} events", events.size());
 			return new ResponseEntity<>(events, HttpStatus.OK);
 		} catch (Exception e) {
@@ -66,11 +67,11 @@ public class EventController {
 
 	// Get event by ID
 	@GetMapping("/{eventId}")
-	public ResponseEntity<Event> getEventById(@PathVariable int eventId) {
+	public ResponseEntity<EventResponseDTO> getEventById(@PathVariable int eventId) {
 		logger.info("GET /api/events/{} - Fetching event by ID", eventId);
 		
 		try {
-			Optional<Event> event = eventService.getEventById(eventId);
+			Optional<EventResponseDTO> event = eventService.getEventById(eventId);
 			if (event.isPresent()) {
 				logger.info("Event found with ID: {}", eventId);
 				return new ResponseEntity<>(event.get(), HttpStatus.OK);
@@ -88,11 +89,11 @@ public class EventController {
 
 	// Update event
 	@PutMapping("/{eventId}")
-	public ResponseEntity<Event> updateEvent(@PathVariable int eventId, @RequestBody Event event) {
-		logger.info("PUT /api/events/{} - Updating event: {}", eventId, event.getEventName());
+	public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable int eventId, @RequestBody EventRequestDTO eventRequestDTO) {
+		logger.info("PUT /api/events/{} - Updating event: {}", eventId, eventRequestDTO.getEventName());
 		
 		try {
-			Event updatedEvent = eventService.updateEvent(eventId, event);
+			EventResponseDTO updatedEvent = eventService.updateEvent(eventId, eventRequestDTO);
 			logger.info("Event updated successfully with ID: {}", eventId);
 			return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
 		} catch (EventNotFoundException e) {

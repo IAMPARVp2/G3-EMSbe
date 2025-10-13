@@ -10,10 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cts.dto.request.EventRequestDTO;
+import com.cts.dto.response.EventResponseDTO;
 import com.cts.entity.Event;
 import com.cts.exceptions.EventNotFoundException;
 import com.cts.exceptions.EventValidationException;
+import com.cts.mapper.EntityMapper;
 import com.cts.repository.EventRepository;
+import com.cts.repository.OrganizerRepository;
 
 @Service
 @Transactional
@@ -23,19 +27,25 @@ public class EventServiceImpl implements EventService {
 
 	@Autowired
 	private EventRepository eventRepository;
+	
+	@Autowired
+	private OrganizerRepository organizerRepository;
 
 	@Override
-	public Event createEvent(Event event) {
-		logger.info("Creating new event: {}", event.getEventName());
+	public EventResponseDTO createEvent(EventRequestDTO eventRequestDTO) {
+		logger.info("Creating new event: {}", eventRequestDTO.getEventName());
+		
+		// Convert DTO to Entity
+		Event event = EntityMapper.toEventEntity(eventRequestDTO);
 		
 		// Validation
 		validateEvent(event);
 		
 		try {
-			// Auditing - Set creation timestamps
-			LocalDateTime now = LocalDateTime.now();
-			event.setEventCreatedAt(now);
-			event.setEventUpdatedAt(now);
+			// Set organizer from organizerId
+			if (eventRequestDTO.getOrganizerId() > 0) {
+				event.setOrganizer(organizerRepository.findById(eventRequestDTO.getOrganizerId()).orElse(null));
+			}
 			
 			// Set default status if not provided
 			if (event.getEventStatus() == null || event.getEventStatus().isEmpty()) {
@@ -44,7 +54,7 @@ public class EventServiceImpl implements EventService {
 			
 			Event savedEvent = eventRepository.save(event);
 			logger.info("Event created successfully with ID: {}", savedEvent.getEventId());
-			return savedEvent;
+			return EntityMapper.toEventResponseDTO(savedEvent);
 			
 		} catch (Exception e) {
 			logger.error("Error creating event: {}", e.getMessage(), e);
@@ -53,12 +63,12 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public List<Event> getAllEvents() {
+	public List<EventResponseDTO> getAllEvents() {
 		logger.info("Fetching all events");
 		try {
 			List<Event> events = eventRepository.findAll();
 			logger.info("Retrieved {} events", events.size());
-			return events;
+			return EntityMapper.toEventResponseDTOList(events);
 		} catch (Exception e) {
 			logger.error("Error fetching all events: {}", e.getMessage(), e);
 			throw new RuntimeException("Failed to fetch events", e);
@@ -66,16 +76,17 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public Optional<Event> getEventById(int eventId) {
+	public Optional<EventResponseDTO> getEventById(int eventId) {
 		logger.info("Fetching event by ID: {}", eventId);
 		try {
 			Optional<Event> event = eventRepository.findById(eventId);
 			if (event.isPresent()) {
 				logger.info("Event found with ID: {}", eventId);
+				return Optional.of(EntityMapper.toEventResponseDTO(event.get()));
 			} else {
 				logger.info("Event not found with ID: {}", eventId);
+				return Optional.empty();
 			}
-			return event;
 		} catch (Exception e) {
 			logger.error("Error fetching event by ID {}: {}", eventId, e.getMessage(), e);
 			throw new RuntimeException("Failed to fetch event", e);
@@ -83,8 +94,11 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public Event updateEvent(int eventId, Event event) {
+	public EventResponseDTO updateEvent(int eventId, EventRequestDTO eventRequestDTO) {
 		logger.info("Updating event with ID: {}", eventId);
+		
+		// Convert DTO to Entity for validation
+		Event event = EntityMapper.toEventEntity(eventRequestDTO);
 		
 		// Validation
 		validateEvent(event);
@@ -113,12 +127,17 @@ public class EventServiceImpl implements EventService {
 			eventToUpdate.setEventTicketPrice(event.getEventTicketPrice());
 			eventToUpdate.setEventTotalSeats(event.getEventTotalSeats());
 			
+			// Update organizer if provided
+			if (eventRequestDTO.getOrganizerId() > 0) {
+				eventToUpdate.setOrganizer(organizerRepository.findById(eventRequestDTO.getOrganizerId()).orElse(null));
+			}
+			
 			// Auditing - Update timestamp
 			eventToUpdate.setEventUpdatedAt(LocalDateTime.now());
 			
 			Event updatedEvent = eventRepository.save(eventToUpdate);
 			logger.info("Event updated successfully with ID: {}", updatedEvent.getEventId());
-			return updatedEvent;
+			return EntityMapper.toEventResponseDTO(updatedEvent);
 			
 		} catch (EventNotFoundException e) {
 			throw e;

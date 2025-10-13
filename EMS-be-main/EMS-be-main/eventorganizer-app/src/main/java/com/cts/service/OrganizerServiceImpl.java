@@ -8,9 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
+import com.cts.dto.request.OrganizerRequestDTO;
+import com.cts.dto.request.UserRequestDTO;
+import com.cts.dto.response.OrganizerResponseDTO;
+import com.cts.dto.response.UserResponseDTO;
 import com.cts.entity.Organizer;
 import com.cts.entity.User;
 import com.cts.exceptions.OrganizerException;
+import com.cts.mapper.EntityMapper;
 import com.cts.repository.UserRepository;
 import com.cts.repository.OrganizerRepository;
 @Service
@@ -20,32 +25,38 @@ public class OrganizerServiceImpl implements OrganizerService {
 	UserRepository uRepo;
 	@Autowired
 	OrganizerRepository oRepo;
-	public User addOrganizer(User user) {
-		if (uRepo.findByEmail(user.getEmail())!=null) {
+	public UserResponseDTO addOrganizer(UserRequestDTO userRequestDTO) {
+		if (uRepo.findByEmail(userRequestDTO.getEmail())!=null) {
 			throw new OrganizerException("Email already exist:500");
 		}
-		if (!user.getRole().equals("Organizer")) {
+		if (!userRequestDTO.getRole().equals("Organizer")) {
 			throw new OrganizerException("Invalid Role:500");
 		}
-		return uRepo.save(user);
+		
+		User user = EntityMapper.toUserEntity(userRequestDTO);
+		User savedUser = uRepo.save(user);
+		return EntityMapper.toUserResponseDTO(savedUser);
 	}
 
-	public List<User> getAll() {
+	public List<UserResponseDTO> getAll() {
 		 List<User> orgs = uRepo.findByRoleContainingIgnoreCase("Organizer");
 	        if (orgs.isEmpty()) throw new OrganizerException("There is no organizer:404");
-	        return orgs;
+	        return EntityMapper.toUserResponseDTOList(orgs);
 	}
 	
-	public Organizer addOrganizerProfile(Organizer organizer,String email) {
+	public OrganizerResponseDTO addOrganizerProfile(OrganizerRequestDTO organizerRequestDTO, String email) {
 		User user = uRepo.findByEmail(email);
 		if(user==null) {
 			throw new OrganizerException("Organizer not registered");
 		}
+		
+		Organizer organizer = EntityMapper.toOrganizerEntity(organizerRequestDTO);
 		organizer.setUser(user);
-		return oRepo.save(organizer);
+		Organizer savedOrganizer = oRepo.save(organizer);
+		return EntityMapper.toOrganizerResponseDTO(savedOrganizer);
 	}
 	
-	public User patchUser(int id, Map<String, String> updates) {
+	public UserResponseDTO patchUser(int id, Map<String, String> updates) {
         User user = uRepo.findById(id)
                         .orElseThrow(() -> new OrganizerException("There is no organizer"));
 
@@ -57,6 +68,7 @@ public class OrganizerServiceImpl implements OrganizerService {
             }
         });
 
-        return uRepo.save(user);
+        User updatedUser = uRepo.save(user);
+        return EntityMapper.toUserResponseDTO(updatedUser);
     }
 }

@@ -3,21 +3,22 @@ package com.cts.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.cts.entity.Event;
+import com.cts.dto.request.EventRequestDTO;
+import com.cts.dto.response.EventResponseDTO;
 
 public interface EventService {
 	
 	// Create event
-	Event createEvent(Event event);
+	EventResponseDTO createEvent(EventRequestDTO eventRequestDTO);
 	
 	// Get all events
-	List<Event> getAllEvents();
+	List<EventResponseDTO> getAllEvents();
 	
 	// Get event by ID
-	Optional<Event> getEventById(int eventId);
+	Optional<EventResponseDTO> getEventById(int eventId);
 	
 	// Update event
-	Event updateEvent(int eventId, Event event);
+	EventResponseDTO updateEvent(int eventId, EventRequestDTO eventRequestDTO);
 	
 	// Delete event
 	void deleteEvent(int eventId);

@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cts.entity.Organizer;
-import com.cts.entity.User;
+import com.cts.dto.request.OrganizerRequestDTO;
+import com.cts.dto.request.UserRequestDTO;
+import com.cts.dto.response.OrganizerResponseDTO;
+import com.cts.dto.response.UserResponseDTO;
 import com.cts.service.OrganizerService;
 
 
@@ -33,37 +35,37 @@ public class OrganizerController {
 	Logger logger = LoggerFactory.getLogger(OrganizerController.class);
 
 	@PostMapping("/signup")
-	public ResponseEntity<User> addOrganizer(@RequestBody User orgUser) {
-		logger.info("Received request to sign up a new organizer with email: {}", orgUser.getEmail()); 
+	public ResponseEntity<UserResponseDTO> addOrganizer(@RequestBody UserRequestDTO userRequestDTO) {
+		logger.info("Received request to sign up a new organizer with email: {}", userRequestDTO.getEmail()); 
 
-		orgUser.setRole("Organizer");
-		orgUser = oService.addOrganizer(orgUser);
-		logger.debug("Organizer successfully added with ID: {}", orgUser.getUserId()); 
-		return new ResponseEntity<User>(orgUser, HttpStatus.OK);
+		userRequestDTO.setRole("Organizer");
+		UserResponseDTO userResponseDTO = oService.addOrganizer(userRequestDTO);
+		logger.debug("Organizer successfully added with ID: {}", userResponseDTO.getUserId()); 
+		return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
 	}
 
 	@GetMapping
-	public ResponseEntity<List<User>> getAll() {
+	public ResponseEntity<List<UserResponseDTO>> getAll() {
 		 logger.info("Fetching all organizer users."); 
-		List<User> list = oService.getAll();
+		List<UserResponseDTO> list = oService.getAll();
 		
 		 logger.debug("Retrieved {} organizer users.", list.size());
-		return new ResponseEntity<List<User>>(list, HttpStatus.OK);
+		return new ResponseEntity<List<UserResponseDTO>>(list, HttpStatus.OK);
 	}
 
 	@PostMapping("/organizerProfile/{email}")
-	public ResponseEntity<Organizer> addOrgnaizerProfile(@RequestBody Organizer organizerProfile,
+	public ResponseEntity<OrganizerResponseDTO> addOrgnaizerProfile(@RequestBody OrganizerRequestDTO organizerRequestDTO,
 			@PathVariable String email) {
 		logger.info("Adding organizer profile for email: {}", email);
-		organizerProfile = oService.addOrganizerProfile(organizerProfile, email);
+		OrganizerResponseDTO organizerResponseDTO = oService.addOrganizerProfile(organizerRequestDTO, email);
 		 logger.debug("Organizer profile added for email: {}", email);
-		return new ResponseEntity<Organizer>(organizerProfile, HttpStatus.OK);
+		return new ResponseEntity<OrganizerResponseDTO>(organizerResponseDTO, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<User> patchUser(@PathVariable int id, @RequestBody Map<String, String> updates) {
+	public ResponseEntity<UserResponseDTO> patchUser(@PathVariable int id, @RequestBody Map<String, String> updates) {
 		 logger.info("Patching user with ID: {} with updates: {}", id, updates.keySet());
-		User updatedUser = oService.patchUser(id, updates);
+		UserResponseDTO updatedUser = oService.patchUser(id, updates);
 		   logger.debug("User with ID: {} successfully patched.", id);
 		return new ResponseEntity<>(updatedUser, HttpStatus.OK);
 	} 
